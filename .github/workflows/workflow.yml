@@ -1,0 +1,35 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+    - name: Report to New Relic
+      uses: newrelic/newrelic-action@v1
+      with:
+        api-key: ${{ secrets.NEW_RELIC_API_KEY }}
+        account-id: ${{ secrets.NEW_RELIC_ACCOUNT_ID }}
+        action: report-build
+        build-id: ${{ github.run_id }}
+        build-status: ${{ job.status }}
